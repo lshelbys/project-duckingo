@@ -1,4 +1,5 @@
 const SIDEBAR_KEY = "duckingo.sidebarCollapsed";
+const CHAT_API = "https://duckingo-chat.shelbys-f3d.workers.dev/chat";
 const app = document.getElementById("app");
 const menuBtn = document.getElementById("menu-btn");
 const sidebarToggle = document.getElementById("sidebar-toggle");
@@ -10,8 +11,8 @@ const input = document.getElementById("composer-input");
 const sendBtn = document.getElementById("send-btn");
 const newChatBtn = document.getElementById("new-chat-btn");
 
-const PREVIEW_REPLY =
-  "This is the Duckingo assistant surface. Live Gemini replies will arrive through a Cloudflare Worker in a later build. For now you can explore the layout, prompts, and tools — the QR code generator is already available in the sidebar.";
+const history = [];
+let busy = false;
 
 function autosize() {
   input.style.height = "auto";
@@ -19,7 +20,7 @@ function autosize() {
 }
 
 function setSendEnabled() {
-  sendBtn.disabled = !input.value.trim();
+  sendBtn.disabled = busy || !input.value.trim();
 }
 
 function hideEmpty() {
@@ -46,12 +47,47 @@ function bubble(role, html, typing = false) {
   return row;
 }
 
-function send(text) {
+function setBubbleText(body, text) {
+  body.replaceChildren();
+  const chunks = String(text).trim() ? String(text).split(/\n{2,}/) : ["No reply."];
+  for (const chunk of chunks) {
+    const p = document.createElement("p");
+    p.textContent = chunk;
+    body.appendChild(p);
+  }
+}
+
+async function askGemini(messages) {
+  const res = await fetch(CHAT_API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ messages }),
+  });
+  let data = {};
+  try {
+    data = await res.json();
+  } catch {
+    data = {};
+  }
+  if (!res.ok) {
+    throw new Error(data.error || `Chat failed (${res.status})`);
+  }
+  if (!data.text) {
+    throw new Error("Empty Gemini reply");
+  }
+  return data.text;
+}
+
+async function send(text) {
   const value = text.trim();
-  if (!value) return;
+  if (!value || busy) return;
   hideEmpty();
+  busy = true;
+  setSendEnabled();
+
   const userRow = bubble("user", "<p></p>");
   userRow.querySelector(".msg__bubble p").textContent = value;
+  history.push({ role: "user", text: value });
   input.value = "";
   autosize();
   setSendEnabled();
@@ -61,13 +97,21 @@ function send(text) {
     `<p class="typing" aria-label="Duckingo is composing"><span></span><span></span><span></span></p>`,
     true,
   );
-  window.setTimeout(() => {
-    const body = pending.querySelector(".msg__bubble");
-    body.innerHTML = "<p></p>";
-    body.querySelector("p").textContent = PREVIEW_REPLY;
+  const body = pending.querySelector(".msg__bubble");
+
+  try {
+    const reply = await askGemini(history);
+    setBubbleText(body, reply);
+    history.push({ role: "assistant", text: reply });
+  } catch (error) {
+    setBubbleText(body, error instanceof Error ? error.message : "Chat failed.");
+  } finally {
     delete pending.dataset.typing;
+    busy = false;
+    setSendEnabled();
     scrollThread();
-  }, 700);
+    input.focus();
+  }
 }
 
 function applySidebar(collapsed) {
