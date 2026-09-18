@@ -10,3 +10,6 @@ export const hubHref = pagesRelative
 export const imageStudioHref = pagesRelative
   ? "../image-studio/"
   : `${hubHref.endsWith("/") ? hubHref : `${hubHref}/`}tools/image-studio/`;
+export const pdfStudioHref = pagesRelative
+  ? "../pdf-studio/"
+  : `${hubHref.endsWith("/") ? hubHref : `${hubHref}/`}tools/pdf-studio/`;

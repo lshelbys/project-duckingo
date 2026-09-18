@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#000000" />
-  <meta name="description" content="Duckingo — an all-in-one workspace for AI chat and everyday tools. QR codes, Image Studio, and more." />
+  <meta name="description" content="Duckingo — an all-in-one workspace for AI chat and everyday tools. QR codes, Image Studio, PDF Studio, and more." />
   <title>Duckingo</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -24,6 +24,7 @@
             <li><a href="./" class="nav__link is-active">Chat</a></li>
             <li><a href="./tools/qr-code/" class="nav__link">QR Code</a></li>
             <li><a href="./tools/image-studio/" class="nav__link">Image Studio</a></li>
+            <li><a href="./tools/pdf-studio/" class="nav__link">PDF Studio</a></li>
           </ul>
         </div>
       </div>
@@ -64,6 +65,15 @@
               </span>
             </a>
           </li>
+          <li>
+            <a class="tool-item" href="./tools/pdf-studio/" title="PDF Studio">
+              <span class="tool-item__icon" aria-hidden="true">▤</span>
+              <span class="tool-item__meta">
+                <span class="tool-item__name">PDF Studio</span>
+                <span class="tool-item__hint">Merge, split, convert</span>
+              </span>
+            </a>
+          </li>
         </ul>
         <p class="sidebar__foot">All-in-one tools · Light workspace</p>
       </aside>
@@ -97,11 +107,11 @@
                 </button>
                 <button type="button" class="suggest" data-prompt="Plan a simple workflow to crop a photo, remove the background, and export PNG or JPEG.">
                   <span class="suggest__label">Plan a tool workflow</span>
-                  <span class="suggest__hint">Image Studio + QR together</span>
+                  <span class="suggest__hint">Image Studio + PDF Studio</span>
                 </button>
-                <button type="button" class="suggest" data-prompt="Give me 5 high-end names for a client-facing report.">
-                  <span class="suggest__label">Name a deliverable</span>
-                  <span class="suggest__hint">Sharp options, no fluff</span>
+                <button type="button" class="suggest" data-prompt="How do I merge two PDFs and add page numbers in Duckingo?">
+                  <span class="suggest__label">Work with a PDF</span>
+                  <span class="suggest__hint">Merge, split, or convert in PDF Studio</span>
                 </button>
               </div>
             </div>

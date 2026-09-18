@@ -1,4 +1,4 @@
-import { hubHref, imageStudioHref } from "@/lib/base";
+import { hubHref, imageStudioHref, pdfStudioHref } from "@/lib/base";
 import * as QRCode from "qrcode";
 import {
   AtSign,
@@ -826,6 +826,11 @@ export default function Home() {
                   Image Studio
                 </a>
               </li>
+              <li>
+                <a href={pdfStudioHref} className="nav__link" onClick={() => setMobileNavOpen(false)}>
+                  PDF Studio
+                </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -873,6 +878,17 @@ export default function Home() {
                 <span className="tool-item__meta">
                   <span className="tool-item__name">Image Studio</span>
                   <span className="tool-item__hint">Crop, cut out, convert</span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a className="tool-item" href={pdfStudioHref} title="PDF Studio">
+                <span className="tool-item__icon" aria-hidden="true">
+                  ▤
+                </span>
+                <span className="tool-item__meta">
+                  <span className="tool-item__name">PDF Studio</span>
+                  <span className="tool-item__hint">Merge, split, convert</span>
                 </span>
               </a>
             </li>
@@ -1122,6 +1138,9 @@ export default function Home() {
               </a>
               <a href={imageStudioHref} className="footer__link">
                 Image Studio
+              </a>
+              <a href={pdfStudioHref} className="footer__link">
+                PDF Studio
               </a>
             </nav>
             <span className="footer__copy">© {new Date().getFullYear()} Duckingo. All-in-one tools.</span>

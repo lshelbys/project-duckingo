@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Duckingo PDF Studio — merge, split, reorder, rotate, compress, watermark, number, and convert PDFs in the browser." />
+  <title>PDF Studio — Duckingo</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Relief:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./pdf-studio.css" />
+  <script defer src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#dropzone">Skip to files</a>
+  <div class="app" id="app">
+    <nav class="nav" role="navigation" aria-label="Main navigation">
+      <div class="container">
+        <div class="nav__inner">
+          <a href="../../" class="nav__logo">Duckingo</a>
+          <button type="button" class="nav__menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false">☰</button>
+          <ul class="nav__links" role="list">
+            <li><a href="../../" class="nav__link">Chat</a></li>
+            <li><a href="../qr-code/" class="nav__link">QR Code</a></li>
+            <li><a href="../image-studio/" class="nav__link">Image Studio</a></li>
+            <li><a href="./" class="nav__link is-active">PDF Studio</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="workspace">
+      <aside class="sidebar" id="sidebar" aria-label="Tools">
+        <a class="btn btn--primary sidebar__new" href="../../" title="New chat">＋ <span class="sidebar__new-label">New chat</span></a>
+        <p class="sidebar__label">Assistant</p>
+        <ul class="tool-list">
+          <li>
+            <a class="tool-item" href="../../" title="Duckingo Chat">
+              <span class="tool-item__icon" aria-hidden="true">✦</span>
+              <span class="tool-item__meta">
+                <span class="tool-item__name">Duckingo Chat</span>
+                <span class="tool-item__hint">Ask anything</span>
+              </span>
+            </a>
+          </li>
+        </ul>
+        <p class="sidebar__label" style="margin-top:22px;">Tools</p>
+        <ul class="tool-list">
+          <li>
+            <a class="tool-item" href="../qr-code/" title="QR Code Generator">
+              <span class="tool-item__icon" aria-hidden="true">▣</span>
+              <span class="tool-item__meta">
+                <span class="tool-item__name">QR Code Generator</span>
+                <span class="tool-item__hint">Create and export codes</span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="tool-item" href="../image-studio/" title="Image Studio">
+              <span class="tool-item__icon" aria-hidden="true">▦</span>
+              <span class="tool-item__meta">
+                <span class="tool-item__name">Image Studio</span>
+                <span class="tool-item__hint">Crop, cut out, convert</span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="tool-item is-active" href="./" title="PDF Studio">
+              <span class="tool-item__icon" aria-hidden="true">▤</span>
+              <span class="tool-item__meta">
+                <span class="tool-item__name">PDF Studio</span>
+                <span class="tool-item__hint">Merge, split, convert</span>
+              </span>
+            </a>
+          </li>
+        </ul>
+        <p class="sidebar__foot">Files stay on this device</p>
+      </aside>
+
+      <section class="studio" aria-label="PDF studio">
+        <header class="studio-bar">
+          <div class="studio-bar__identity">
+            <span class="mark" aria-hidden="true">▤</span>
+            <div>
+              <p class="chat__title">PDF Studio</p>
+              <p class="chat__sub" id="doc-name">Drop PDFs, then merge, split, or convert</p>
+            </div>
+          </div>
+          <div class="studio-bar__actions">
+            <button type="button" class="btn btn--sm" id="replace-btn" disabled>Replace</button>
+            <button type="button" class="btn btn--primary btn--sm" id="run-top" disabled>Download</button>
+          </div>
+        </header>
+
+        <div class="studio-shell">
+          <nav class="rail" aria-label="PDF tools">
+            <button type="button" class="rail__btn is-active" data-tool="merge" title="Merge PDFs">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h6v16H7zM15 8h4v12h-4z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+              <span>Merge</span>
+            </button>
+            <button type="button" class="rail__btn" data-tool="split" title="Split a PDF">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h6v14H5zM13 5h6v14h-6z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+              <span>Split</span>
+            </button>
+            <button type="button" class="rail__btn" data-tool="reorder" title="Reorder pages">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6v.01M4 12v.01M4 18v.01" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+              <span>Reorder</span>
+            </button>
+            <button type="button" class="rail__btn" data-tool="rotate" title="Rotate pages">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 1 2.3 5.7M4 12V6m0 6h6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+              <span>Rotate</span>
+            </button>
+            <button type="button" class="rail__btn" data-tool="compress" title="Compress PDF">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v16H8zM5 9h14M5 15h14" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+              <span>Compress</span>
+            </button>
+            <button type="button" class="rail__btn" data-tool="watermark" title="Watermark">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16M7 16l5-11 5 11M9 12h6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+              <span>Watermark</span>
+            </button>
+            <button type="button" class="rail__btn" data-tool="numbers" title="Page numbers">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h8v14H8zM11 9h2M10 15h4" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+              <span>Numbers</span>
+            </button>
+            <button type="button" class="rail__btn" data-tool="images" title="PDF to images">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="11" r="1.5"/><path d="M7 17l4-4 3 3 3-4 2 5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+              <span>To images</span>
+            </button>
+            <button type="button" class="rail__btn" data-tool="photos" title="Images to PDF">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14v12H5zM8 4h8" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+              <span>From images</span>
+            </button>
+          </nav>
+
+          <div class="canvas-col">
+            <p class="error" id="error" hidden></p>
+            <div id="empty-panel">
+              <div class="dropzone" id="dropzone">
+                <input id="file-input" class="sr-only" type="file" accept="application/pdf,.pdf" multiple />
+                <p class="empty__eyebrow">Private · in the browser</p>
+                <h1 class="empty__title" id="empty-title">Drop PDFs to get started</h1>
+                <p class="empty__lead" id="empty-lead">Merge, split, reorder, rotate, compress, watermark, number pages, or convert to images.</p>
+                <button type="button" class="btn btn--primary" id="browse-btn">Choose files</button>
+                <ul class="feature-chips" aria-hidden="true">
+                  <li>Merge</li>
+                  <li>Split</li>
+                  <li>Reorder</li>
+                  <li>Rotate</li>
+                  <li>Compress</li>
+                  <li>Watermark</li>
+                </ul>
+              </div>
+            </div>
+            <div id="workspace-panel" hidden>
+              <div class="file-board" id="file-board"></div>
+            </div>
+            <div class="canvas-hud">
+              <progress id="progress" max="100" value="0" hidden></progress>
+              <p id="status" class="status-text"></p>
+              <p id="meta" class="meta-text"></p>
+            </div>
+          </div>
+
+          <aside class="inspector" aria-label="Tool settings">
+            <section class="panel" data-panel="merge">
+              <h2>Merge</h2>
+              <p class="controls__lead">Add two or more PDFs, order them, then download one file.</p>
+              <div class="controls__actions">
+                <button type="button" class="btn btn--primary" id="merge-run" disabled>Merge and download</button>
+              </div>
+            </section>
+            <section class="panel" data-panel="split" hidden>
+              <h2>Split</h2>
+              <p class="controls__lead">Extract a page range, or save every page as its own PDF in a ZIP.</p>
+              <label class="field"><span>Mode</span>
+                <select id="split-mode">
+                  <option value="range">Page range</option>
+                  <option value="all">Every page (ZIP)</option>
+                </select>
+              </label>
+              <div class="size-row" id="split-range">
+                <label class="field"><span>From</span><input id="split-start" type="number" min="1" value="1" /></label>
+                <label class="field"><span>To</span><input id="split-end" type="number" min="1" value="1" /></label>
+              </div>
+              <div class="controls__actions">
+                <button type="button" class="btn btn--primary" id="split-run" disabled>Split and download</button>
+              </div>
+            </section>
+            <section class="panel" data-panel="reorder" hidden>
+              <h2>Reorder</h2>
+              <p class="controls__lead">Move pages up or down, then save the new order.</p>
+              <div class="controls__actions">
+                <button type="button" class="btn btn--primary" id="reorder-run" disabled>Save order</button>
+              </div>
+            </section>
+            <section class="panel" data-panel="rotate" hidden>
+              <h2>Rotate</h2>
+              <p class="controls__lead">Turn every page 90° at a time.</p>
+              <div class="controls__actions">
+                <button type="button" class="btn" id="rotate-ccw">↺ 90°</button>
+                <button type="button" class="btn" id="rotate-cw">↻ 90°</button>
+                <button type="button" class="btn btn--primary" id="rotate-run" disabled>Download rotated PDF</button>
+              </div>
+            </section>
+            <section class="panel" data-panel="compress" hidden>
+              <h2>Compress</h2>
+              <p class="controls__lead">Rewrite the PDF with object streams. Already-tight files may not shrink.</p>
+              <p class="meta-text" id="compress-stats"></p>
+              <div class="controls__actions">
+                <button type="button" class="btn btn--primary" id="compress-run" disabled>Compress and download</button>
+              </div>
+            </section>
+            <section class="panel" data-panel="watermark" hidden>
+              <h2>Watermark</h2>
+              <p class="controls__lead">Stamp text across every page. Files never leave this browser.</p>
+              <label class="field"><span>Text</span><input id="wm-text" type="text" value="DUCKINGO" maxlength="80" /></label>
+              <label class="field"><span>Opacity <em id="wm-opacity-label">24</em></span><input id="wm-opacity" type="range" min="8" max="80" value="24" /></label>
+              <label class="field"><span>Angle</span><input id="wm-angle" type="number" min="-90" max="90" value="-32" /></label>
+              <div class="controls__actions">
+                <button type="button" class="btn btn--primary" id="watermark-run" disabled>Stamp and download</button>
+              </div>
+            </section>
+            <section class="panel" data-panel="numbers" hidden>
+              <h2>Page numbers</h2>
+              <p class="controls__lead">Add a footer or header number on each page.</p>
+              <label class="field"><span>Format</span>
+                <select id="num-format">
+                  <option value="n">1</option>
+                  <option value="page-n">Page 1</option>
+                  <option value="n-of-total">1 / 10</option>
+                  <option value="page-n-of-total" selected>Page 1 of 10</option>
+                </select>
+              </label>
+              <p class="sidebar__label" style="padding:4px 0 8px;">Position</p>
+              <div class="pos-grid" id="num-pos">
+                <button type="button" data-pos="top-left">TL</button>
+                <button type="button" data-pos="top-center">TC</button>
+                <button type="button" data-pos="top-right">TR</button>
+                <button type="button" data-pos="bottom-left">BL</button>
+                <button type="button" data-pos="bottom-center" class="is-active">BC</button>
+                <button type="button" data-pos="bottom-right">BR</button>
+              </div>
+              <div class="size-row">
+                <label class="field"><span>Start</span><input id="num-start" type="number" min="1" value="1" /></label>
+                <label class="field"><span>Size</span><input id="num-size" type="number" min="8" max="24" value="11" /></label>
+              </div>
+              <div class="controls__actions">
+                <button type="button" class="btn btn--primary" id="numbers-run" disabled>Number and download</button>
+              </div>
+            </section>
+            <section class="panel" data-panel="images" hidden>
+              <h2>PDF to images</h2>
+              <p class="controls__lead">Render each page to PNG or JPEG and download a ZIP.</p>
+              <label class="field"><span>Format</span>
+                <select id="img-format">
+                  <option value="png">PNG</option>
+                  <option value="jpeg">JPEG</option>
+                </select>
+              </label>
+              <label class="field"><span>Scale</span>
+                <select id="img-scale">
+                  <option value="1">1×</option>
+                  <option value="1.5" selected>1.5×</option>
+                  <option value="2">2×</option>
+                </select>
+              </label>
+              <div class="controls__actions">
+                <button type="button" class="btn btn--primary" id="images-run" disabled>Export images</button>
+              </div>
+            </section>
+            <section class="panel" data-panel="photos" hidden>
+              <h2>Images to PDF</h2>
+              <p class="controls__lead">Each image becomes a page. PNG and JPEG work best.</p>
+              <label class="field"><span>Page size</span>
+                <select id="photo-size">
+                  <option value="fit">Fit to image</option>
+                  <option value="a4">A4</option>
+                  <option value="letter">Letter</option>
+                </select>
+              </label>
+              <div class="controls__actions">
+                <button type="button" class="btn btn--primary" id="photos-run" disabled>Build PDF</button>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </section>
+    </div>
+    <button type="button" class="sidebar-toggle" id="sidebar-toggle" aria-controls="sidebar" aria-expanded="true" aria-label="Collapse tools">‹</button>
+  </div>
+  <script src="./sidebar.js"></script>
+  <script src="./pdf-studio.js"></script>
+</body>
+</html>
